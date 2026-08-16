@@ -19,6 +19,11 @@ wayland_protos = dependency('wayland-protocols', version: '>=1.12')
 wayland_server = dependency('wayland-server')
 evdev = dependency('libevdev')
 
+if get_option('enable_wayfire_shadows') == true or get_option('enable_focus_request') == true or
+    get_option('enable_pixdecor') == true or get_option('enable_filters') == true
+    find_program('git', required: true)
+endif
+
 if get_option('enable_wayfire_shadows') == true
     wayfire_shadows = subproject('wayfire-shadows')
 endif
