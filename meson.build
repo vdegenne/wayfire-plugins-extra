@@ -19,19 +19,24 @@ wayland_protos = dependency('wayland-protocols', version: '>=1.12')
 wayland_server = dependency('wayland-server')
 evdev = dependency('libevdev')
 
-if get_option('enable_wayfire_shadows') == true
+if get_option('wayfire_shadows') == true or get_option('focus_request') == true or \
+    get_option('pixdecor') == true or get_option('filters') == true
+    find_program('git', required: true)
+endif
+
+if get_option('wayfire_shadows') == true
     wayfire_shadows = subproject('wayfire-shadows')
 endif
 
-if get_option('enable_focus_request') == true
+if get_option('focus_request') == true
     focus_request = subproject('focus-request')
 endif
 
-if get_option('enable_pixdecor') == true
+if get_option('pixdecor') == true
     pixdecor = subproject('pixdecor')
 endif
 
-if get_option('enable_filters') == true
+if get_option('filters') == true
     filters = subproject('filters')
 endif
 
