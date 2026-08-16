@@ -19,7 +19,7 @@ wayland_protos = dependency('wayland-protocols', version: '>=1.12')
 wayland_server = dependency('wayland-server')
 evdev = dependency('libevdev')
 
-if get_option('wayfire_shadows') == true or get_option('focus_request') == true or
+if get_option('wayfire_shadows') == true or get_option('focus_request') == true or \
     get_option('pixdecor') == true or get_option('filters') == true
     find_program('git', required: true)
 endif
