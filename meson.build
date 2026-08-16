@@ -2,7 +2,7 @@ project(
 	'wayfire-plugins-extra',
 	'c',
 	'cpp',
-	version: '0.11.0',
+	version: '0.11.2',
 	license: 'MIT',
 	meson_version: '>=0.59.0',
 	default_options: [
