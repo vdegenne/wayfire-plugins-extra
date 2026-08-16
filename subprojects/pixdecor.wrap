@@ -1,4 +1,4 @@
 [wrap-git]
 url = https://github.com/soreau/pixdecor.git
-revision = fix-mo-path
+revision = HEAD
 depth = 1
