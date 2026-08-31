@@ -31,6 +31,7 @@
 
 namespace wf_hide_cursor
 {
+
 bool hidden;
 
 class wayfire_hide_cursor
@@ -44,19 +45,23 @@ class wayfire_hide_cursor
         hide_timer.disconnect();
         hide_timer.set_timeout(hide_delay, [=] ()
         {
-            auto view = wf::get_core().get_cursor_focus_view();
-
-            if (view && disabled_for.matches(view))
-            {
-                return;
-            }
-
-            if (!hidden)
-            {
-                wf::get_core().hide_cursor();
-                hidden = true;
-            }
+            hide_or_show_cursor();
         });
+    }
+
+    void hide_or_show_cursor()
+    {
+        auto view = wf::get_core().get_cursor_focus_view();
+
+        if (view && disabled_for.matches(view))
+        {
+            wf::get_core().unhide_cursor();
+            hidden = false;
+        } else
+        {
+            wf::get_core().hide_cursor();
+            hidden = true;
+        }
     }
 
   public:
@@ -66,63 +71,23 @@ class wayfire_hide_cursor
         restart_hide_timer();
 
         wf::get_core().connect(&pointer_motion);
-        wf::get_core().connect(&workspace_changed);
-    }
-
-    void reevaluate()
-    {
-        auto view = wf::get_core().get_cursor_focus_view();
-
-        if (view && disabled_for.matches(view))
-        {
-            hide_timer.disconnect();
-
-            if (hidden)
-            {
-                wf::get_core().unhide_cursor();
-                hidden = false;
-            }
-
-            return;
-        }
-
-        if (hidden)
-        {
-            wf::get_core().unhide_cursor();
-            hidden = false;
-        }
-
-        restart_hide_timer();
     }
 
     wf::signal::connection_t<wf::input_event_signal<wlr_pointer_motion_event>> pointer_motion =
         [=] (wf::input_event_signal<wlr_pointer_motion_event> *ev)
     {
-        if (hidden)
-        {
-            wf::get_core().unhide_cursor();
-            hidden = false;
-        }
-    
+        wf::get_core().unhide_cursor();
+        hidden = false;
         restart_hide_timer();
-    };
-
-    wf::signal::connection_t<wf::workspace_changed_signal> workspace_changed =
-        [=] (wf::workspace_changed_signal *ev)
-    {
-        reevaluate();
     };
 
     ~wayfire_hide_cursor()
     {
         pointer_motion.disconnect();
-        workspace_changed.disconnect();
         hide_timer.disconnect();
 
-        if (hidden)
-        {
-            wf::get_core().unhide_cursor();
-        }
+        wf::get_core().unhide_cursor();
+        hidden = false;
     }
 };
 
@@ -160,4 +125,5 @@ class wayfire_hide_cursor_plugin : public wf::per_output_plugin_instance_t
 };
 
 DECLARE_WAYFIRE_PLUGIN(wf::per_output_plugin_t<wayfire_hide_cursor_plugin>);
+
 }
