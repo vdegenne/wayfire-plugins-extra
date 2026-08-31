@@ -34,29 +34,6 @@ namespace wf_hide_cursor
 
 bool hidden;
 
-void hide_cursor()
-{
-    wf::get_core().hide_cursor();
-    hidden = true;
-}
-
-void show_cursor()
-{
-    wf::get_core().unhide_cursor();
-    hidden = false;
-}
-
-void toggle_cursor()
-{
-    if (hidden)
-    {
-        show_cursor();
-    } else
-    {
-        hide_cursor();
-    }
-}
-
 class wayfire_hide_cursor
 {
     wf::option_wrapper_t<int> hide_delay{"hide-cursor/hide_delay"};
@@ -86,6 +63,30 @@ class wayfire_hide_cursor
     }
 
   public:
+    void hide_cursor()
+    {
+        wf::get_core().hide_cursor();
+        hidden = true;
+    }
+
+    void show_cursor()
+    {
+        hide_timer.disconnect();
+        wf::get_core().unhide_cursor();
+        hidden = false;
+    }
+
+    void toggle_cursor()
+    {
+        if (hidden)
+        {
+            show_cursor();
+        } else
+        {
+            hide_cursor();
+        }
+    }
+
     wayfire_hide_cursor()
     {
         hidden = false;
@@ -98,9 +99,9 @@ class wayfire_hide_cursor
         [=] (wf::input_event_signal<wlr_pointer_motion_event> *ev)
     {
         if (hidden)
-	  {
+        {
             show_cursor();
-	  }
+        }
 
         restart_hide_timer();
     };
@@ -120,7 +121,7 @@ class wayfire_hide_cursor_plugin : public wf::per_output_plugin_instance_t
 
     wf::activator_callback toggle_cb = [=] (auto)
     {
-        toggle_cursor();
+        global_idle->toggle_cursor();
         return true;
     };
 
