@@ -16,7 +16,7 @@
 			<min>250</min>
 		</option>
 		<option name="disabled_for" type="view_match">
-			<default></default>
+			<default>none</default>
 			<description>Disabled for specified window types</description>
 		</option>
 	</plugin>
