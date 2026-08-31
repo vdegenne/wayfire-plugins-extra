@@ -28,6 +28,7 @@
 #include <wayfire/output.hpp>
 #include <wayfire/signal-definitions.hpp>
 #include <wayfire/util.hpp>
+#include <fstream>
 
 namespace wf_hide_cursor
 {
@@ -102,35 +103,29 @@ class wayfire_hide_cursor
         restart_hide_timer();
 
         wf::get_core().connect(&pointer_motion);
-        wf::get_core().connect(&workspace_changed);
+        // wf::get_core().connect(&workspace_changed);
+    }
+
+    void on_event()
+    {
+        if (hidden)
+        {
+            show_cursor();
+        }
+
+        restart_hide_timer();
     }
 
     wf::signal::connection_t<wf::input_event_signal<wlr_pointer_motion_event>> pointer_motion =
         [=] (wf::input_event_signal<wlr_pointer_motion_event> *ev)
     {
-        if (hidden)
-        {
-            show_cursor();
-        }
-
-        restart_hide_timer();
-    };
-
-    wf::signal::connection_t<wf::workspace_changed_signal> workspace_changed =
-        [=] (wf::workspace_changed_signal *ev)
-    {
-        if (hidden)
-        {
-            show_cursor();
-        }
-
-        restart_hide_timer();
+        on_event();
     };
 
     ~wayfire_hide_cursor()
     {
         pointer_motion.disconnect();
-        workspace_changed.disconnect();
+        // workspace_changed.disconnect();
         hide_timer.disconnect();
 
         show_cursor();
@@ -147,17 +142,26 @@ class wayfire_hide_cursor_plugin : public wf::per_output_plugin_instance_t
         return true;
     };
 
+    wf::signal::connection_t<wf::workspace_changed_signal> workspace_changed =
+        [=] (wf::workspace_changed_signal *ev)
+    {
+        global_idle->on_event();
+    };
+
   public:
     void init() override
     {
         output->add_activator(
             wf::option_wrapper_t<wf::activatorbinding_t>{"hide-cursor/toggle"},
             &toggle_cb);
+
+        output->connect(&workspace_changed);
     }
 
     void fini() override
     {
         output->rem_binding(&toggle_cb);
+        workspace_changed.disconnect();
     }
 };
 
