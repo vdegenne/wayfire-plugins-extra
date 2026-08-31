@@ -66,13 +66,21 @@ class wayfire_hide_cursor
     void hide_cursor()
     {
         hide_timer.disconnect();
+    
+        if (hidden)
+            return;
+    
         wf::get_core().hide_cursor();
         hidden = true;
     }
-
+    
     void show_cursor()
     {
         hide_timer.disconnect();
+    
+        if (!hidden)
+            return;
+    
         wf::get_core().unhide_cursor();
         hidden = false;
     }
