@@ -36,7 +36,8 @@ bool hidden;
 class wayfire_hide_cursor
 {
     wf::option_wrapper_t<int> hide_delay{"hide-cursor/hide_delay"};
-    wf::view_matcher_t disabled_for{"hide-cursor/disabled_for"};
+    wf::option_wrapper_t<std::string> disabled_for{"hide-cursor/disabled_for"};
+    wf::view_matcher_t matcher{"hide-cursor/disabled_for"};
     wf::wl_timer<false> hide_timer;
 
     void debounce_reevaluate()
@@ -61,7 +62,7 @@ class wayfire_hide_cursor
     {
         auto view = wf::get_core().get_cursor_focus_view();
 
-        if (view && disabled_for.matches(view))
+        if (disabled_for.get_value() != "none" && view && matcher.matches(view))
         {
             hide_timer.disconnect();
 
