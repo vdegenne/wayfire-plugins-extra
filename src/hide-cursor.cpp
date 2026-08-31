@@ -103,7 +103,6 @@ class wayfire_hide_cursor
         restart_hide_timer();
 
         wf::get_core().connect(&pointer_motion);
-        // wf::get_core().connect(&workspace_changed);
     }
 
     void on_event()
@@ -125,7 +124,6 @@ class wayfire_hide_cursor
     ~wayfire_hide_cursor()
     {
         pointer_motion.disconnect();
-        // workspace_changed.disconnect();
         hide_timer.disconnect();
 
         show_cursor();
