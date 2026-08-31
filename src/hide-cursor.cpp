@@ -97,7 +97,9 @@ class wayfire_hide_cursor
     wf::signal::connection_t<wf::input_event_signal<wlr_pointer_motion_event>> pointer_motion =
         [=] (wf::input_event_signal<wlr_pointer_motion_event> *ev)
     {
-        show_cursor();
+        if (hidden) {
+            show_cursor();
+	  }
         restart_hide_timer();
     };
 
