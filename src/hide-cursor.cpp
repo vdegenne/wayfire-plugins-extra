@@ -39,11 +39,20 @@ class wayfire_hide_cursor
     wf::view_matcher_t disabled_for{"hide-cursor/disabled_for"};
     wf::wl_timer<false> hide_timer;
 
+    void debounce_reevaluate()
+    {
+        hide_timer.disconnect();
+        hide_timer.set_timeout(hide_delay, [=] ()
+        {
+            reevaluate();
+        });
+    }
+
   public:
     wayfire_hide_cursor()
     {
         hidden = false;
-        setup_hide_timer();
+        debounce_reevaluate();
         wf::get_core().connect(&pointer_motion);
         wf::get_core().connect(&workspace_changed);
     }
@@ -54,37 +63,14 @@ class wayfire_hide_cursor
 
         if (view && disabled_for.matches(view))
         {
+            hide_timer.disconnect();
+
             if (hidden)
             {
                 wf::get_core().unhide_cursor();
                 hidden = false;
             }
 
-            hide_timer.disconnect();
-            return;
-        }
-
-        if (!hidden)
-        {
-            wf::get_core().hide_cursor();
-            hidden = true;
-        }
-    }
-
-    wf::signal::connection_t<wf::input_event_signal<wlr_pointer_motion_event>> pointer_motion =
-        [=] (wf::input_event_signal<wlr_pointer_motion_event> *ev)
-    {
-        auto view = wf::get_core().get_cursor_focus_view();
-
-        if (view && disabled_for.matches(view))
-        {
-            if (hidden)
-            {
-                wf::get_core().unhide_cursor();
-                hidden = false;
-            }
-
-            hide_timer.disconnect();
             return;
         }
 
@@ -94,7 +80,13 @@ class wayfire_hide_cursor
             hidden = false;
         }
 
-        setup_hide_timer();
+        debounce_reevaluate();
+    }
+
+    wf::signal::connection_t<wf::input_event_signal<wlr_pointer_motion_event>> pointer_motion =
+        [=] (wf::input_event_signal<wlr_pointer_motion_event> *ev)
+    {
+        reevaluate();
     };
 
     wf::signal::connection_t<wf::workspace_changed_signal> workspace_changed =
@@ -102,15 +94,6 @@ class wayfire_hide_cursor
     {
         reevaluate();
     };
-
-    void setup_hide_timer()
-    {
-        hide_timer.disconnect();
-        hide_timer.set_timeout(hide_delay, [=] ()
-        {
-            reevaluate();
-        });
-    }
 
     ~wayfire_hide_cursor()
     {
@@ -120,7 +103,6 @@ class wayfire_hide_cursor
         if (hidden)
         {
             wf::get_core().unhide_cursor();
-            hidden = false;
         }
     }
 };
