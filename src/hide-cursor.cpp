@@ -66,21 +66,21 @@ class wayfire_hide_cursor
     void hide_cursor()
     {
         hide_timer.disconnect();
-    
+
         if (hidden)
             return;
-    
+
         wf::get_core().hide_cursor();
         hidden = true;
     }
-    
+
     void show_cursor()
     {
         hide_timer.disconnect();
-    
+
         if (!hidden)
             return;
-    
+
         wf::get_core().unhide_cursor();
         hidden = false;
     }
@@ -102,6 +102,7 @@ class wayfire_hide_cursor
         restart_hide_timer();
 
         wf::get_core().connect(&pointer_motion);
+        wf::get_core().connect(&workspace_changed);
     }
 
     wf::signal::connection_t<wf::input_event_signal<wlr_pointer_motion_event>> pointer_motion =
@@ -115,9 +116,21 @@ class wayfire_hide_cursor
         restart_hide_timer();
     };
 
+    wf::signal::connection_t<wf::workspace_changed_signal> workspace_changed =
+        [=] (wf::workspace_changed_signal *ev)
+    {
+        if (hidden)
+        {
+            show_cursor();
+        }
+
+        restart_hide_timer();
+    };
+
     ~wayfire_hide_cursor()
     {
         pointer_motion.disconnect();
+        workspace_changed.disconnect();
         hide_timer.disconnect();
 
         show_cursor();
