@@ -28,7 +28,6 @@
 #include <wayfire/output.hpp>
 #include <wayfire/signal-definitions.hpp>
 #include <wayfire/util.hpp>
-#include <fstream>
 
 namespace wf_hide_cursor
 {
