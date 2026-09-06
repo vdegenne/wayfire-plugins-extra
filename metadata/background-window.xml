@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<wayfire>
+    <plugin name="background-window">
+        <_short>Background Window</_short>
+        <category>Window Management</category>
+
+        <option name="background_toggle" type="activator">
+            <_short>Bury Active Window</_short>
+            <_long>
+                Makes the active window sticky, always-on-bottom,
+                click-through and immune to focus requests.
+            </_long>
+            <default></default>
+        </option>
+    </plugin>
+</wayfire>

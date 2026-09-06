@@ -40,6 +40,10 @@ ghost = shared_module('ghost', 'ghost.cpp',
     dependencies: [wayfire],
     install: true, install_dir: join_paths(get_option('libdir'), 'wayfire'))
 
+background_window = shared_module('background-window', 'background-window.cpp',
+    dependencies: [wayfire],
+    install: true, install_dir: join_paths(get_option('libdir'), 'wayfire'))
+
 if giomm.found()
 glib_main_loop = shared_module('glib-main-loop', 'glib-main-loop.cpp',
     dependencies: [wayfire, giomm],
