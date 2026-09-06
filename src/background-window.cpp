@@ -24,7 +24,6 @@ public:
 
   std::optional<wf::scene::input_node_t>
   find_node_at(const wf::pointf_t &at) override {
-    // Completely ignore pointer/touch input.
     return {};
   }
 };
@@ -79,11 +78,7 @@ class background_plugin : public wf::plugin_interface_t {
   }
 
   void add_transformer(wayfire_view view) {
-    if (!view) {
-      return;
-    }
-
-    if (transformers.count(view)) {
+    if (!view || transformers.count(view)) {
       return;
     }
 
@@ -106,11 +101,7 @@ class background_plugin : public wf::plugin_interface_t {
   }
 
   void bury_view(wayfire_view view) {
-    if (!view) {
-      return;
-    }
-
-    if (background_views.count(view)) {
+    if (!view || background_views.count(view)) {
       return;
     }
 
@@ -126,24 +117,32 @@ class background_plugin : public wf::plugin_interface_t {
       return;
     }
 
+    /*
+     * If this is currently focused, move focus away first.
+     * This is the important part: the background window should
+     * no longer be the active view before we put it at the bottom.
+     */
+    if (wf::get_core().seat->get_active_view() == view) {
+      auto views = output->wset()->get_views();
+
+      for (auto &candidate : views) {
+        if (candidate && candidate != view) {
+          wf::get_core().seat->focus_view(candidate);
+        }
+      }
+    }
+
     background_views.insert(view);
 
-    // Make the window sticky.
     toplevel->set_sticky(true);
 
-    // Make it completely ignore pointer/touch input.
     add_transformer(view);
 
-    // Put it underneath normal workspace windows.
     set_always_on_bottom(view);
   }
 
   void remove_background_state(wayfire_view view) {
-    if (!view) {
-      return;
-    }
-
-    if (!background_views.count(view)) {
+    if (!view || !background_views.count(view)) {
       return;
     }
 
@@ -159,8 +158,8 @@ class background_plugin : public wf::plugin_interface_t {
   }
 
   /*
-   * Swallow keyboard events before they reach the client whenever
-   * the destination node belongs to one of our background windows.
+   * Swallow keyboard events whenever Wayfire happens to have restored
+   * focus to one of our background views.
    */
   wf::signal::connection_t<
       wf::pre_client_input_event_signal<wlr_keyboard_key_event>>
@@ -189,18 +188,10 @@ class background_plugin : public wf::plugin_interface_t {
 
   wf::signal::connection_t<wf::view_set_output_signal>
       view_set_output_connection = [this](wf::view_set_output_signal *ev) {
-        if (!ev->view) {
+        if (!ev->view || !background_views.count(ev->view)) {
           return;
         }
 
-        if (!background_views.count(ev->view)) {
-          return;
-        }
-
-        /*
-         * set_output() removes the view from the old scene layer,
-         * so put it into the bottom layer of the new output.
-         */
         set_always_on_bottom(ev->view);
       };
 
@@ -221,9 +212,6 @@ public:
   }
 
   void fini() override {
-    /*
-     * Remove the click-through transformers.
-     */
     for (auto &view : background_views) {
       remove_transformer(view);
 
@@ -239,9 +227,6 @@ public:
 
     background_views.clear();
 
-    /*
-     * Remove our artificial bottom-layer nodes.
-     */
     for (auto &[output, node] : always_below) {
       if (node) {
         wf::scene::remove_child(node);
