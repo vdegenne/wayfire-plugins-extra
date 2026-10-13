@@ -1,4 +1,7 @@
-> **Notice:** This fork's README may differ from the latest version. Check the [`plus-my-plugins`](../../tree/plus-my-plugins) branch for additional changes and plugins.
+> [!IMPORTANT]
+> This fork contains additional fixes and improvements. Check the [`plus-my-plugins`](../../tree/plus-my-plugins) branch for the latest changes and plugins.
+>
+> ---
 
 # wayfire-plugins-extra
 
