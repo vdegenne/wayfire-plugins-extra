@@ -1,4 +1,7 @@
+> **Notice:** This fork's README may differ from the latest version. Check the [`plus-my-plugins`](../../tree/plus-my-plugins) branch for additional changes and plugins.
+
 # wayfire-plugins-extra
+
 Additional plugins for Wayfire
 
 This is a place for plugins that have external dependencies, debugging purposes or otherwise will not be included with wayfire core plugins.
