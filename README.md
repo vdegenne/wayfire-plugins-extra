@@ -1,4 +1,15 @@
+> [!IMPORTANT]
+> This branch includes additional plugins, enhancements, and fixes:
+>
+> - Added the `background-window` plugin.
+> - Enhanced the `hide-cursor` plugin.
+> - Enhanced the `keycolor` plugin.
+> - Various fixes and improvements.
+>
+> ---
+
 # wayfire-plugins-extra
+
 Additional plugins for Wayfire
 
 This is a place for plugins that have external dependencies, debugging purposes or otherwise will not be included with wayfire core plugins.
